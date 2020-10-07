@@ -5,52 +5,96 @@ const uniKey = () => {
 }
 
 export default () => { 
-    const [createDir,setCreateDir] = useState(false)
+    const [inpVal,setInpVal] = useState("")
+    const [createDir,setCreateDir] = useState("")
     const [currentDirectory,setCurrentDirectory] = useState("")
     const [directories,setDirectories] = useState([
         {type:'folder',name:'my-app',
         childs:[
-            {type:'folder',name:'demo-app',childs:[
+            {type:'folder',name:'demo-app1',childs:[
                 {type:'folder',name:'test-app',childs:[
-                    {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
-                ],
-                focusStyle:false,activeStyle:false,key:uniKey(),},
-                {type:'file',name:'my-app.js',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
+                   {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
+                   ], focusStyle:false,activeStyle:false,key:uniKey(),
+                },
+                {type:'file',name:'my-app.js',focusStyle:false,activeStyle:false,key:uniKey()},
                 {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
             ],
             focusStyle:false,activeStyle:false,key:uniKey()},
-            {type:'folder',name:'test-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey(),},
-            {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
-            {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
+            {type:'folder',name:'test-app2',childs:[],focusStyle:false,activeStyle:false,key:uniKey(),},
+            {type:'folder',name:'my-app3',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
+            {type:'folder',name:'my-app4',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
         ],
-        focusStyle:false,activeStyle:true,key:uniKey()
+        focusStyle:false,activeStyle:false,key:uniKey()
         },
         {type:'folder',name:'demo-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
-        {type:'file',name:'test-app.js',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
+        {type:'file',name:'test-app.js',focusStyle:false,activeStyle:false,key:uniKey()},
         {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
         {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
     ])
 
-    const seeChilds = (openedKey:string,seeDirectories:any) => {
-         seeDirectories.map( (v:any) => {
-            v.focusStyle = false
-             if(openedKey === v.key){
-                 v.activeStyle = v.activeStyle ? false : true;
-                 v.focusStyle = true;
-                 setCurrentDirectory(openedKey)
-                 setCreateDir(false)
-             }
-             if(v.childs.length){
-                seeChilds(openedKey,v.childs)
-             }
+    const seeChilds = (openedKey:string,seeDirectories:any,inpVal?:string) => {
+         seeDirectories?.map( (v:any) => {
+            if(inpVal){
+                // for addition    
+                // console.log('Running')
+                if(createDir === "folder" && openedKey === v.key ){
+                    var newFolder = {
+                     type:'folder',name:inpVal,childs:[],focusStyle:false,activeStyle:false,key:uniKey()
+                    }
+                    v.childs.push(newFolder)
+                    setCreateDir("")
+                   console.log('ADDFOLDER===>',inpVal);
+                   return true 
+                }
+                else if(createDir === "file" && openedKey === v.key ){
+                    var newFile = {
+                        type:'file',name:inpVal,focusStyle:false,activeStyle:false,key:uniKey()
+                       }
+                       v.childs.push(newFile)
+                       setCreateDir("")
+                    console.log('ADDFILE===>',inpVal); 
+                    return true
+                }
+                seeChilds(openedKey,v?.childs,inpVal)
+
+            }else{
+                // for updation    
+                v.focusStyle = false
+                if(openedKey === v.key){
+                    v.activeStyle = v.activeStyle ? false : true;
+                    v.focusStyle = true;
+                    setCurrentDirectory(openedKey)
+                    setCreateDir("")
+                }
+                if(v?.childs?.length){
+                   seeChilds(openedKey,v.childs)
+                }
+            } 
         })
     }
 
-    const clickFolder = (openedKey:string) => {
+    const clickFolderOrFile = (openedKey:string) => {
         seeChilds(openedKey,directories)
         setDirectories([...directories])
     }
     
+
+    const addInDirectory = (e:any,openedKey:string) => {
+     e.preventDefault();
+     var inpVal = (document.getElementById(openedKey) as HTMLInputElement).value;
+     seeChilds(openedKey,directories,inpVal)
+     setDirectories([...directories])
+    }
+
+    const createNewFile = () => {
+        setCreateDir("file")
+    }
+
+    const createNewFolder = () => {
+        setCreateDir("folder")
+    }
+   
+
 
     const renderDirectories = (childs:any) => {
         return(
@@ -59,15 +103,27 @@ export default () => {
                      return(
                         <div key={index}>
                             <div
-                            id={v.key}
-                            onClick={() => clickFolder(v.key) }
+                            // id={v.key}
+                            onClick={() => clickFolderOrFile(v.key) }
                             className={`editor-folder-div ${v.focusStyle ? 'act-sty' : 'fold-hov'}`}
                             >
                             <img className={`fold-togg ${v.activeStyle && "rota"}`}
                                 src={require('../../Assets/light-arrow.png')}/> {v.name}
                             </div>
-                            <div style={{paddingLeft:'5px'}} >
-                                {v.focusStyle && currentDirectory && createDir   && <input  />}
+                            <div style={{paddingLeft:'10px',display:v.activeStyle?'block':'none'}} > 
+                             {/* active style display issue */}
+                                {
+                                v.focusStyle && currentDirectory && createDir   && 
+                                <form style={{paddingLeft:'6px'}}>
+                                    {createDir === "file" ? 
+                                        <img height="17px" src={require('../../Assets/left-align.png')}/>
+                                        :
+                                        <img height="14px" src={require('../../Assets/light-arrow.png')}/>
+                                    } 
+                                    <input id={v.key}   autoFocus />  
+                                    <button style={{visibility:'hidden'}} onClick={(e) => addInDirectory(e,v.key)}>add</button>
+                                </form>
+                                }
                                 {v.childs && renderDirectories(v.childs)}
                             </div>
                         </div>
@@ -75,14 +131,25 @@ export default () => {
                 }else{
                     return(
                         <div key={index}>
-
-                        
-                        <div id={v.key}
-                          onClick={() => clickFolder(v.key) }
-                         className={`editor-folder-div ${v.focusStyle ? 'act-sty' : 'fold-hov'}`}
-                        >
-                              <img className="tab-icon"  src={require('../../Assets/js-logo.png')} />  {v.name}
-                        </div>
+                            <div
+                            //  id={v.key}
+                            onClick={() => clickFolderOrFile(v.key) }
+                            className={`editor-folder-div ${v.focusStyle ? 'act-sty' : 'fold-hov'}`}
+                            >
+                                <img className="tab-icon"  src={require('../../Assets/js-logo.png')} />  {v.name}
+                            </div>
+                            {
+                            v.focusStyle && currentDirectory && createDir   && 
+                            <div>
+                                {createDir === "file" ? 
+                                    <img height="17px" src={require('../../Assets/left-align.png')}/>
+                                    :
+                                    <img height="14px" src={require('../../Assets/light-arrow.png')}/>
+                                } 
+                                <input id={v.key} autoFocus />  
+                                <button style={{visibility:'hidden'}} onClick={(e) => addInDirectory(e,v.key)}>add</button>
+                            </div>
+                            }
                         </div>
                     )
                 }
@@ -92,15 +159,6 @@ export default () => {
     }
 
     
-    const createNewFile = () => {
-        console.log("BB",currentDirectory)
-        setCreateDir(true)
-    //   directories
-    }
-
-    const createNewFolder = () => {
-        
-    }
 
 
 
