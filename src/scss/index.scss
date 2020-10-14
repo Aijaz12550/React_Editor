@@ -2,10 +2,13 @@
 @import "./EditorHeader/index.scss";
 @import "./EditorLeft/index.scss";
 
-
+:root{
+    --background: #ffffff;
+    --background-focus: #ffffff;
+    --background-hover: #ffffff;
+}
 
 .editor-container{
-    // border:2px solid #6b225f;
     display: flex; 
     height: 100vh;
     .editor-body{
@@ -13,7 +16,6 @@
      flex-basis: 80%;
      height: 100vh;
      min-width: 300px;
-    //  border:1px solid rgb(236, 54, 54);
     }   
 }
 
