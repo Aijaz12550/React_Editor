@@ -1,0 +1,21 @@
+@import "./Variables/index.scss";
+@import "./EditorHeader/index.scss";
+@import "./EditorLeft/index.scss";
+
+:root{
+    --background: #ffffff;
+    --background-focus: #ffffff;
+    --background-hover: #ffffff;
+}
+
+.editor-container{
+    display: flex; 
+    height: 100vh;
+    .editor-body{
+     width: 0px;
+     flex-basis: 80%;
+     height: 100vh;
+     min-width: 300px;
+    }   
+}
+
