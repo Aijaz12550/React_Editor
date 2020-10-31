@@ -32,7 +32,7 @@ export default () => {
         {type:'folder',name:'my-app',childs:[],focusStyle:false,activeStyle:false,key:uniKey()},
     ])
 
-    const seeChilds = (openedKey:string,seeDirectories:any,inpVal?:string) => {
+    const seeChilds = (openedKey:string,seeDirectories:any,inpVal?:string) => { 
          seeDirectories?.map( (v:any) => {
             if(inpVal){
                 // for addition    
@@ -41,7 +41,12 @@ export default () => {
                     var newFolder = {
                      type:'folder',name:inpVal,childs:[],focusStyle:false,activeStyle:false,key:uniKey()
                     }
-                    v.childs.push(newFolder)
+                    if(v.type === "folder"){
+                        v.childs.push(newFolder)
+                    }
+                    else{
+                      seeDirectories.push(newFolder)
+                    }
                     setCreateDir("")
                    console.log('ADDFOLDER===>',inpVal);
                    return true 
@@ -50,7 +55,12 @@ export default () => {
                     var newFile = {
                         type:'file',name:inpVal,focusStyle:false,activeStyle:false,key:uniKey()
                        }
-                       v.childs.push(newFile)
+                        if(v.type === "folder"){
+                            v.childs.push(newFile)
+                        }
+                        else{
+                         seeDirectories.push(newFile)
+                        }
                        setCreateDir("")
                     console.log('ADDFILE===>',inpVal); 
                     return true
@@ -140,7 +150,7 @@ export default () => {
                             </div>
                             {
                             v.focusStyle && currentDirectory && createDir   && 
-                            <div>
+                            <form style={{paddingLeft:'6px'}}>
                                 {createDir === "file" ? 
                                     <img height="17px" src={require('../../Assets/left-align.png')}/>
                                     :
@@ -148,7 +158,7 @@ export default () => {
                                 } 
                                 <input id={v.key} autoFocus />  
                                 <button style={{visibility:'hidden'}} onClick={(e) => addInDirectory(e,v.key)}>add</button>
-                            </div>
+                            </form>
                             }
                         </div>
                     )
